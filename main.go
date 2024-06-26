@@ -2,27 +2,23 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
-	"net/http"
+	"net/url"
 )
 
-const url = "https://google.com"
+const myurl = "https://lco.dev:3000/learn?coursename=reactjs&paymentid=ghbj2516511"
 
 func main() {
-	fmt.Println("Web Requests")
+	fmt.Println("Handling Urls in GoLang")
+	fmt.Println(myurl)
 
-	response, err := http.Get(url)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("Response is of type: %T", response)
+	//parsing the url
+	result, _ := url.Parse(myurl)
+	fmt.Println(result.Scheme)
+	fmt.Println(result.Host)
+	fmt.Println(result.Path)
+	fmt.Println(result.Port())
+	fmt.Println(result.RawQuery)
 
-	defer response.Body.Close() // caller's responsibility to close connection
-	databytes, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		panic(err)
-	}
-	content := string(databytes)
-	fmt.Println(content)
-
+	qparams := result.Query()
+	fmt.Printf("The type of query params are : %T\n", qparams)
 }
