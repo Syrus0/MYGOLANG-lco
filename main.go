@@ -2,23 +2,79 @@ package main
 
 import (
 	"fmt"
+	"io"
+	"net/http"
 	"net/url"
+	"strings"
 )
 
-const myurl = "https://lco.dev:3000/learn?coursename=reactjs&paymentid=ghbj2516511"
-
 func main() {
-	fmt.Println("Handling Urls in GoLang")
-	fmt.Println(myurl)
+	fmt.Println("Web verb video")
+	//PerformGetRequest()
+	// PerformPostJsonRequest()
+	PerformPostFormRequest()
 
-	//parsing the url
-	result, _ := url.Parse(myurl)
-	fmt.Println(result.Scheme)
-	fmt.Println(result.Host)
-	fmt.Println(result.Path)
-	fmt.Println(result.Port())
-	fmt.Println(result.RawQuery)
+}
 
-	qparams := result.Query()
-	fmt.Printf("The type of query params are : %T\n", qparams)
+func PerformGetRequest() {
+	const myurl = "http://localhost:8000/get"
+
+	response, err := http.Get(myurl)
+	if err != nil {
+		panic(err)
+	}
+	defer response.Body.Close()
+	fmt.Println("Status code:", response.StatusCode)
+	fmt.Println("Content Length: ", response.ContentLength)
+
+	var responseString strings.Builder
+	content, _ := io.ReadAll(response.Body)
+	byteCount, _ := responseString.Write(content)
+	fmt.Println("Byte count is: ", byteCount)
+	fmt.Println(responseString.String())
+
+	// fmt.Println(content) //content byte format ma cha la bro
+	// fmt.Println(string(content))
+}
+func PerformPostJsonRequest() {
+	const myurl = "http://localhost:8000/post"
+
+	requestBody := strings.NewReader(`
+{
+"coursename" : "Let's go with Golang",
+"price" : 0,
+"platform" : "learncodeonline.in"
+
+}
+
+
+`)
+	response, err := http.Post(myurl, "application/json", requestBody)
+	if err != nil {
+		panic(err)
+	}
+
+	defer response.Body.Close()
+	content, _ := io.ReadAll(response.Body)
+	fmt.Println(string(content))
+}
+func PerformPostFormRequest() {
+	const myurl = "http://localhost:8000/postform"
+
+	//form data
+	data := url.Values{}
+	data.Add("firstname", "syrus")
+	data.Add("lastname", "rajbhandari")
+	data.Add("email", "syrus.go.dev")
+	data.Add("age", "22")
+
+	response, err := http.PostForm(myurl, data)
+	if err != nil {
+		panic(err)
+	}
+
+	defer response.Body.Close()
+	content, _ := io.ReadAll(response.Body)
+	fmt.Println(string(content))
+
 }
