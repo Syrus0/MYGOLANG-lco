@@ -1,80 +1,66 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
-	"net/url"
-	"strings"
 )
 
+type course struct {
+	Name     string `json:"coursename"`
+	Price    int
+	Platform string   `json:"Website"`
+	Password string   `json:"-"`
+	Tags     []string `json:"tags,omitempty"`
+}
+
 func main() {
-	fmt.Println("Web verb video")
-	//PerformGetRequest()
-	// PerformPostJsonRequest()
-	PerformPostFormRequest()
-
+	fmt.Println("Welcome to Json")
+	//encodeJson()
+	decodeJson()
 }
 
-func PerformGetRequest() {
-	const myurl = "http://localhost:8000/get"
+func encodeJson() {
+	lcoCourses := []course{
+		{"React JS Bootcamp", 299, "LearnCodeonline.in", "abc123", []string{"web-dev", "js"}},
+		{"MERN Bootcamp", 199, "LearnCodeonline.in", "bcd123", []string{"full-stack", "js"}},
+		{"Angular Bootcamp", 299, "LearnCodeonline.in", "syr123", nil},
+	}
 
-	response, err := http.Get(myurl)
+	//package this data as a JSON data
+	finalJson, err := json.MarshalIndent(lcoCourses, "", "\t")
 	if err != nil {
 		panic(err)
 	}
-	defer response.Body.Close()
-	fmt.Println("Status code:", response.StatusCode)
-	fmt.Println("Content Length: ", response.ContentLength)
-
-	var responseString strings.Builder
-	content, _ := io.ReadAll(response.Body)
-	byteCount, _ := responseString.Write(content)
-	fmt.Println("Byte count is: ", byteCount)
-	fmt.Println(responseString.String())
-
-	// fmt.Println(content) //content byte format ma cha la bro
-	// fmt.Println(string(content))
-}
-func PerformPostJsonRequest() {
-	const myurl = "http://localhost:8000/post"
-
-	requestBody := strings.NewReader(`
-{
-"coursename" : "Let's go with Golang",
-"price" : 0,
-"platform" : "learncodeonline.in"
-
+	fmt.Printf("%s", finalJson)
 }
 
-
-`)
-	response, err := http.Post(myurl, "application/json", requestBody)
-	if err != nil {
-		panic(err)
+func decodeJson() {
+	jsonDataFromWeb := []byte(`
+	
+	 {
+                "coursename": "React JS Bootcamp",    
+                "Price": 299,
+                "Website": "LearnCodeonline.in",      
+                "tags": [
+                        "web-dev",
+                        "js"]
+        }
+		
+		`)
+	var lcoCourse course
+	checkValid := json.Valid(jsonDataFromWeb)
+	if checkValid {
+		fmt.Println("JSON was valid")
+		json.Unmarshal(jsonDataFromWeb, &lcoCourse)
+		fmt.Printf("%#v\n", lcoCourse)
+	} else {
+		fmt.Println("JSON WAS NOT VALID")
 	}
 
-	defer response.Body.Close()
-	content, _ := io.ReadAll(response.Body)
-	fmt.Println(string(content))
-}
-func PerformPostFormRequest() {
-	const myurl = "http://localhost:8000/postform"
+	// some cases where you just want to add data to key value
 
-	//form data
-	data := url.Values{}
-	data.Add("firstname", "syrus")
-	data.Add("lastname", "rajbhandari")
-	data.Add("email", "syrus.go.dev")
-	data.Add("age", "22")
-
-	response, err := http.PostForm(myurl, data)
-	if err != nil {
-		panic(err)
-	}
-
-	defer response.Body.Close()
-	content, _ := io.ReadAll(response.Body)
-	fmt.Println(string(content))
+	var myOnlineData map[string]interface{}
+	json.Unmarshal(jsonDataFromWeb, &myOnlineData)
+	fmt.Println("%#v\n", myOnlineData)
 
 }
