@@ -1,66 +1,27 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
+	"log"
+	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
-type course struct {
-	Name     string `json:"coursename"`
-	Price    int
-	Platform string   `json:"Website"`
-	Password string   `json:"-"`
-	Tags     []string `json:"tags,omitempty"`
-}
-
 func main() {
-	fmt.Println("Welcome to Json")
-	//encodeJson()
-	decodeJson()
+	fmt.Println("Hello mod in golang")
+	greeter()
 }
 
-func encodeJson() {
-	lcoCourses := []course{
-		{"React JS Bootcamp", 299, "LearnCodeonline.in", "abc123", []string{"web-dev", "js"}},
-		{"MERN Bootcamp", 199, "LearnCodeonline.in", "bcd123", []string{"full-stack", "js"}},
-		{"Angular Bootcamp", 299, "LearnCodeonline.in", "syr123", nil},
-	}
+func greeter() {
+	fmt.Println("Hey there mod users")
 
-	//package this data as a JSON data
-	finalJson, err := json.MarshalIndent(lcoCourses, "", "\t")
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("%s", finalJson)
+	r := mux.NewRouter()
+	r.HandleFunc("/", serveHome).Methods("GET")
+
+	log.Fatal(http.ListenAndServe(":4000", r))
 }
 
-func decodeJson() {
-	jsonDataFromWeb := []byte(`
-	
-	 {
-                "coursename": "React JS Bootcamp",    
-                "Price": 299,
-                "Website": "LearnCodeonline.in",      
-                "tags": [
-                        "web-dev",
-                        "js"]
-        }
-		
-		`)
-	var lcoCourse course
-	checkValid := json.Valid(jsonDataFromWeb)
-	if checkValid {
-		fmt.Println("JSON was valid")
-		json.Unmarshal(jsonDataFromWeb, &lcoCourse)
-		fmt.Printf("%#v\n", lcoCourse)
-	} else {
-		fmt.Println("JSON WAS NOT VALID")
-	}
-
-	// some cases where you just want to add data to key value
-
-	var myOnlineData map[string]interface{}
-	json.Unmarshal(jsonDataFromWeb, &myOnlineData)
-	fmt.Println("%#v\n", myOnlineData)
-
+func serveHome(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("<h1>Welcome to Golang Series</h1>"))
 }
